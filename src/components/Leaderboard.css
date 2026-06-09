@@ -1,0 +1,66 @@
+.leaderboard { padding: 0; }
+
+.lb-title {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.lb-table { width: 100%; border-collapse: collapse; }
+
+.lb-th {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 0 0 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.lb-th.rank, .lb-td.rank { width: 26px; text-align: center; }
+.lb-th.pts,  .lb-td.pts  { text-align: right; font-family: var(--font-display); font-size: 1rem; color: var(--accent); }
+.lb-th.team-col, .lb-td.team-col { width: 52px; }
+
+.lb-td {
+  padding: 7px 0;
+  font-size: 0.82rem;
+  font-weight: 300;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.lb-row-self .lb-td { color: var(--accent); }
+.lb-row-self .lb-td.pts { color: var(--accent); }
+
+.lb-you {
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-left: 4px;
+  text-transform: uppercase;
+}
+
+.lb-rank-num { font-size: 0.75rem; color: var(--text-muted); }
+
+.lb-team-tag {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  background: rgba(245,230,66,0.08);
+  padding: 2px 5px;
+}
+
+.lb-solo {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-style: italic;
+}

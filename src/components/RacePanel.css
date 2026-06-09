@@ -1,0 +1,248 @@
+.race-panel { display: flex; flex-direction: column; gap: 24px; }
+
+/* ── Top bar ── */
+.race-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.race-status-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.race-status-chip {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+}
+.race-status-chip.waiting { color: var(--text-muted); border: 1px solid var(--border); }
+.race-status-chip.closed  { color: var(--bg); background: var(--text-muted); }
+
+.race-countdown {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--accent);
+  transition: color 0.3s;
+  white-space: nowrap;
+}
+.race-countdown.urgent { color: #f87171; }
+.race-countdown-unit { font-size: 1.2rem; margin-left: 2px; }
+
+.timer-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  overflow: hidden;
+  min-width: 40px;
+}
+.timer-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.05s linear, background 0.3s;
+}
+.timer-fill.urgent { background: #f87171; }
+
+/* ── Creator controls ── */
+.race-controls { display: flex; gap: 8px; flex-shrink: 0; }
+
+.btn-race-start {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+.btn-race-start:hover:not(:disabled) { background: var(--accent-dim); }
+.btn-race-start:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-race-stop {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  color: #f87171;
+  border: 1px solid #f87171;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+.btn-race-stop:hover:not(:disabled) { background: rgba(248,113,113,0.1); }
+.btn-race-stop:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Buzz area ── */
+.buzz-area {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.buzz-btn {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  letter-spacing: 0.15em;
+  color: var(--bg);
+  background: var(--accent);
+  border: none;
+  padding: 32px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s, transform 0.1s;
+}
+.buzz-btn:hover  { background: var(--accent-dim); }
+.buzz-btn:active { transform: scale(0.98); }
+
+.buzz-btn.inactive {
+  background: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  font-size: 2.2rem;
+}
+.buzz-btn.closed-state {
+  background: #1a1a1a;
+  color: var(--text-muted);
+  cursor: not-allowed;
+  font-size: 2rem;
+  border: 1px solid var(--border);
+}
+.buzz-btn.creator-view {
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: default;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+.buzz-btn.creator-view.active-state {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.my-reaction-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border: 1px solid var(--accent);
+  background: rgba(245,230,66,0.04);
+}
+.mr-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.mr-time {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.late-msg {
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: #f87171;
+  padding: 12px 16px;
+  border: 1px solid #f87171;
+}
+
+.waiting-msg {
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ── Results & team summary ── */
+.results-section, .team-summary-section { }
+
+.results-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.results-table { width: 100%; border-collapse: collapse; }
+
+.rt-th {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 0 0 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rt-th.right, .rt-td.right { text-align: right; }
+.rt-th.pos,   .rt-td.pos   { width: 28px; }
+
+.rt-td {
+  padding: 9px 0;
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+.rt-td.pos { color: var(--text-muted); font-size: 0.78rem; }
+.rt-td.right {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+.rt-td.no-resp {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.rt-self .rt-td { color: var(--accent); }
+.no-resp-row .rt-td { opacity: 0.45; }
+.ts-winner .rt-td { color: var(--accent); }
+
+.team-chip {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  background: rgba(245,230,66,0.08);
+  padding: 2px 6px;
+}
+.team-chip.muted { color: var(--text-muted); background: transparent; }
+.solo-chip { font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
+
+.tag-you {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-left: 5px;
+  text-transform: uppercase;
+}

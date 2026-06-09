@@ -1,0 +1,130 @@
+.teams-panel {
+  padding: 0;
+}
+
+.teams-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.teams-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+}
+
+.teams-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.teams-empty {
+  font-size: 0.82rem;
+  font-weight: 300;
+  color: var(--text-muted);
+}
+
+/* ── Buttons ── */
+.tpanel-btn {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, background 0.2s;
+}
+.tpanel-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.tpanel-btn.accent   { background: var(--accent); color: var(--bg); }
+.tpanel-btn.accent:hover:not(:disabled) { background: var(--accent-dim); }
+.tpanel-btn.ghost    { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+.tpanel-btn.ghost:hover:not(:disabled)  { color: var(--text); border-color: var(--text-muted); }
+.tpanel-btn.small    { padding: 4px 8px; font-size: 0.65rem; }
+
+/* ── Create form ── */
+.team-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.team-input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.team-input:focus { border-color: var(--accent); }
+.team-input::placeholder { color: var(--text-muted); opacity: 0.5; }
+
+.team-error {
+  font-size: 0.78rem;
+  color: #f87171;
+  margin-bottom: 10px;
+}
+
+/* ── Team cards ── */
+.team-card {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.team-card.mine { border-color: var(--accent); }
+
+.team-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.team-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+
+.team-you-badge {
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 2px 6px;
+}
+
+.team-members {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.team-members li {
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--text-muted);
+}
+.team-members li.me { color: var(--accent); }
+
+.tag-you {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-left: 5px;
+  text-transform: uppercase;
+}

@@ -1,0 +1,147 @@
+.home {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.home-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+/* ── TABS ── */
+.home-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  padding: 18px 0;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tab-btn.active {
+  color: var(--text);
+}
+
+.tab-btn.active::after {
+  transform: scaleX(1);
+}
+
+.tab-btn:hover:not(.active) {
+  color: var(--text);
+}
+
+/* ── PANEL ── */
+.home-panel {
+  padding: 36px 40px;
+}
+
+.panel-desc {
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+/* ── CREATE ── */
+.btn-primary {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-dim);
+  transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-primary.wide {
+  width: 100%;
+  padding: 16px;
+  font-size: 0.9rem;
+}
+
+/* ── JOIN ── */
+.input-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.code-input {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.3em;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 12px 18px;
+  outline: none;
+  text-transform: uppercase;
+  transition: border-color 0.2s ease;
+  min-width: 0;
+}
+
+.code-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.code-input:focus {
+  border-color: var(--accent);
+}
+
+.code-input.input-error {
+  border-color: #f87171;
+}
+
+.error-msg {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #f87171;
+  letter-spacing: 0.04em;
+}

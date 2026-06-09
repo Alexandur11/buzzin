@@ -1,0 +1,16 @@
+services:
+  server:
+    build: ./server
+    restart: unless-stopped
+    # Not exposed publicly — nginx proxies to it internally
+
+  app:
+    build:
+      context: .
+      args:
+        VITE_API_URL: /api   # nginx proxies /api → server:4000
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    restart: unless-stopped
