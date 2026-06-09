@@ -1,61 +1,84 @@
 # Buzzin
 
-React frontend + Node.js REST API. Rooms and membership are held in server memory.
+Buzzin is a lightweight multiplayer reaction-timing web app — a React + Vite frontend served by nginx and a small Node.js HTTP API that holds rooms in memory. It's intended as a small demo project for building real-time-style interactions without a database.
 
-## Local Development
+**Contents:**
 
-**Terminal 1 — API server:**
+- Frontend: React, Vite (src/)
+- API: Node.js (server/index.js)
+- Docker: Multi-stage build for the frontend and a simple `server` service
+
+## Quickstart (local)
+
+1. Start the API server
+
 ```bash
 cd server
 npm install
-npm run dev   # → http://localhost:4000
+npm run dev
+# server → http://localhost:4000
 ```
 
-**Terminal 2 — Frontend:**
+2. Start the frontend in a separate terminal
+
 ```bash
 npm install
-npm run dev   # → http://localhost:5173
+npm run dev
+# frontend → http://localhost:5173
 ```
 
-The Vite dev server proxies `/api` to `:4000` automatically.
+The Vite dev server proxies `/api` to `http://localhost:4000` during development.
 
-## Docker (Production)
+## Running with Docker
+
+Build and run both services with Docker Compose (nginx exposes the app on port 3000):
 
 ```bash
 docker compose up --build
-# → http://localhost:3000
+# app → http://localhost:3000
 ```
 
-Both services start together. nginx proxies `/api/*` to the server container internally — only port 3000 is exposed.
+Notes:
+- The root `Dockerfile` performs a multi-stage build: Node builds the bundle, then `nginx` serves `dist/`.
+- `docker-compose.yml` defines `app` and `server` services; nginx proxies `/api` to the `server` container.
 
-## Project Structure
+## Project layout (high level)
 
 ```
-buzzin-app/
-├── src/
-│   ├── store/rooms.js         # API client + session ID
-│   ├── components/
-│   │   ├── Home.jsx / .css    # Create or join a room
-│   │   └── Room.jsx / .css    # Room view with live member count
-│   ├── App.jsx / .css
-│   ├── index.css
-│   └── main.jsx
-├── server/
-│   ├── index.js               # HTTP REST API (no dependencies except ws built-in http)
-│   ├── package.json
-│   └── Dockerfile
-├── Dockerfile                 # Multi-stage: Node build → nginx
-├── nginx.conf                 # SPA routing + /api proxy + gzip
-└── docker-compose.yml         # app + server services
+.
+├── server/                 # Node API (in-memory rooms)
+├── src/                    # React app (Vite)
+│   ├── components/         # UI components
+│   └── store/rooms.js      # API helper used by frontend
+├── Dockerfile              # frontend multi-stage build → nginx
+├── nginx.conf              # nginx config: proxy /api → server
+└── docker-compose.yml
 ```
 
-## API
+## Development tips
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/rooms` | Create room → `{ code, createdAt, memberCount }` |
-| POST | `/rooms/:code/join` | Join room → same shape |
-| POST | `/rooms/:code/leave` | Leave room (fires on tab close via sendBeacon) |
-| GET | `/rooms/:code` | Get current member count |
+- If you add dependencies to `package.json`, run `npm install` locally and commit the lockfile (`package-lock.json`) so Docker builds can use `npm ci` for reproducible installs.
+- To reproduce the build step locally (helps debug Docker build failures):
 
-All requests include `{ sessionId }` in the body. Membership is tracked as a `Set<sessionId>` per room — idempotent joins, accurate counts, empty rooms are deleted immediately.
+```bash
+npm ci
+npm run build
+```
+
+## API (summary)
+
+- `POST /rooms` — create a room (body: `{ sessionId, username }`)
+- `POST /rooms/:code/join` — join room (body: `{ sessionId, username }`)
+- `POST /rooms/:code/leave` — leave room (body: `{ sessionId }`)
+- `GET /rooms/:code` — fetch room view
+
+See `server/index.js` for the full behavior and additional endpoints (teams, race lifecycle).
+
+## Troubleshooting
+
+- Build failure in Docker: run `npm run build` locally to see Vite errors rather than debugging inside the image.
+- If Dockerfile installs fail, ensure `package-lock.json` is present or allow the Dockerfile to fall back to `npm install` (the project Dockerfile already handles this).
+
+## License
+
+MIT — for demo and learning purposes.

@@ -7,9 +7,13 @@ WORKDIR /app
 ARG VITE_API_URL=http://localhost:4000
 ENV VITE_API_URL=$VITE_API_URL
 
-COPY package.json ./
-RUN npm install
+# Copy package files first to leverage Docker cache and perform a clean install
+COPY package*.json ./
+# Use `npm ci` when a lockfile exists, otherwise fall back to `npm install`
+# to avoid failing builds for repositories without a package-lock.json.
+RUN if [ -f package-lock.json ]; then npm ci --silent; else npm install --silent; fi
 
+# Copy rest of the project and build
 COPY . .
 RUN npm run build
 

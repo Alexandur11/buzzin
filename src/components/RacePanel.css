@@ -246,3 +246,75 @@
   margin-left: 5px;
   text-transform: uppercase;
 }
+
+/* ── Countdown display ── */
+.cd-display {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cd-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.cd-number {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--accent);
+  line-height: 1;
+  min-width: 48px;
+}
+
+/* ── Buzz variants ── */
+.buzz-btn.countdown-phase {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  background: var(--border);
+  color: var(--text-muted);
+  cursor: default;
+  animation: pulse-countdown 1s ease infinite;
+}
+@keyframes pulse-countdown {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+
+.buzz-btn.active-phase {
+  animation: pop-in 0.15s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes pop-in {
+  from { transform: scale(0.95); }
+  to   { transform: scale(1); }
+}
+
+.buzz-btn.cd-state {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Race number badge ── */
+.race-number-badge {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 3px 8px;
+  margin-left: auto;
+}
+
+/* ── Early click feedback ── */
+.race-feedback {
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  font-weight: 300;
+  border: 1px solid;
+}
+.race-feedback.early { color: #fbbf24; border-color: #fbbf24; background: rgba(251,191,36,0.05); }
+.race-feedback.late  { color: #f87171; border-color: #f87171; }
+
+.early-row .rt-td { color: #fbbf24; opacity: 0.8; }
+.early-label { font-family: var(--font-body) !important; font-size: 0.78rem !important; color: #fbbf24 !important; font-style: italic; }

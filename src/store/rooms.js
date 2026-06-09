@@ -41,6 +41,10 @@ export const createTeam  = (code, teamName)      => post(`/rooms/${code}/teams/c
 export const joinTeam    = (code, teamName)       => post(`/rooms/${code}/teams/join`, { teamName })
 export const leaveTeam   = (code)                 => post(`/rooms/${code}/teams/leave`)
 
+export const kickPlayer  = (code, targetId)      => post(`/rooms/${code}/kick`, { targetId })
+
 export const startRace   = (code)                 => post(`/rooms/${code}/race/start`)
 export const stopRace    = (code)                 => post(`/rooms/${code}/race/stop`)
 export const submitReaction = (code)              => post(`/rooms/${code}/race/submit`)
+
+export const updateSettings = (code, settings) => post(`/rooms/${code}/settings`, settings)
