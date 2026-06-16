@@ -119,9 +119,12 @@ export default function RacePanel({ race, roomCode, isCreator, settings, raceNum
               </button>
             )}
             {(isActive || isCountdown) && (
-              <button className="btn-race-stop" onClick={handleStop} disabled={busy}>
-                {busy ? '…' : 'Stop Race'}
-              </button>
+              <>
+                {isActive && <span className="responded-count">{responded.length} responded</span>}
+                <button className="btn-race-stop" onClick={handleStop} disabled={busy}>
+                  {busy ? '…' : 'Stop Race'}
+                </button>
+              </>
             )}
           </div>
         )}
@@ -129,49 +132,40 @@ export default function RacePanel({ race, roomCode, isCreator, settings, raceNum
 
       {/* ── Buzz button area ── */}
       <div className="buzz-area">
-        {/* Participant — countdown phase: button shown but visually locked */}
-        {!isCreator && isCountdown && !submitted && (
+        {/* Countdown phase */}
+        {isCountdown && !submitted && (
           <button className="buzz-btn countdown-phase" onClick={handleBuzz}>
             {cdSecs != null && cdSecs > 0 ? cdSecs : '…'}
           </button>
         )}
 
-        {/* Participant — active phase */}
-        {!isCreator && isActive && !submitted && !latePress && (
+        {/* Active phase */}
+        {isActive && !submitted && !latePress && (
           <button className="buzz-btn active-phase" onClick={handleBuzz}>BUZZ!</button>
         )}
 
         {/* Idle */}
-        {!isCreator && !race && <div className="buzz-btn inactive">BUZZ!</div>}
+        {!race && <div className="buzz-btn inactive">BUZZ!</div>}
 
         {/* Closed */}
-        {!isCreator && isClosed && !submitted && <div className="buzz-btn closed-state">RACE OVER</div>}
-
-        {/* Creator placeholder */}
-        {isCreator && (
-          <div className={`buzz-btn creator-view ${isActive ? 'active-state' : isCountdown ? 'cd-state' : ''}`}>
-            {isCountdown && `Countdown… ${cdSecs != null && cdSecs > 0 ? cdSecs : '…'}`}
-            {isActive    && `${responded.length} responded`}
-            {!isActive && !isCountdown && 'HOST'}
-          </div>
-        )}
+        {isClosed && !submitted && <div className="buzz-btn closed-state">RACE OVER</div>}
 
         {/* Feedback */}
-        {!isCreator && submitted && myReaction != null && !earlyClick && !latePress && (
+        {submitted && myReaction != null && !earlyClick && !latePress && (
           <div className="my-reaction-badge">
             <span className="mr-label">YOUR TIME</span>
             <span className="mr-time">{(myReaction / 1000).toFixed(3)}s</span>
           </div>
         )}
-        {!isCreator && earlyClick && (
+        {earlyClick && (
           <div className="race-feedback early">
             ⚡ Too early! You clicked before the race started.
           </div>
         )}
-        {!isCreator && latePress && (
+        {latePress && (
           <div className="race-feedback late">Time is up. Submissions are closed.</div>
         )}
-        {!isCreator && submitted && myReaction != null && !earlyClick && isActive && (
+        {submitted && myReaction != null && !earlyClick && isActive && (
           <p className="waiting-msg">Waiting for others…</p>
         )}
       </div>

@@ -13,7 +13,8 @@ export default function SettingsPanel({ settings, roomCode, locked }) {
   async function handleSave() {
     setSaving(true); setError('')
     try {
-      await updateSettings(roomCode, local)
+      const result = await updateSettings(roomCode, local)
+      setLocal({ ...result.settings })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     } catch (e) { setError(e.message) }

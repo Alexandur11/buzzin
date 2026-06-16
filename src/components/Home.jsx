@@ -3,11 +3,11 @@ import { createRoom, joinRoom } from '../store/rooms'
 import UsernameModal from './UsernameModal'
 import './Home.css'
 
-export default function Home({ onEnterRoom }) {
-  const [joinCode, setJoinCode] = useState('')
+export default function Home({ onEnterRoom, initialJoinCode = '' }) {
+  const [joinCode, setJoinCode] = useState(initialJoinCode)
   const [joinError, setJoinError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [tab, setTab] = useState('create')
+  const [tab, setTab] = useState(initialJoinCode ? 'join' : 'create')
   // pendingAction holds what we do once username is confirmed
   const [pendingAction, setPendingAction] = useState(null) // null | 'create' | 'join'
 

@@ -1,10 +1,24 @@
 function getSessionId() {
-  let id = sessionStorage.getItem('buzzin_sid')
-  if (!id) { id = Math.random().toString(36).slice(2, 10); sessionStorage.setItem('buzzin_sid', id) }
+  let id = localStorage.getItem('buzzin_sid')
+  if (!id) { id = Math.random().toString(36).slice(2, 10); localStorage.setItem('buzzin_sid', id) }
   return id
 }
 
 export const SESSION_ID = getSessionId()
+
+export function saveLastSession(code, username) {
+  localStorage.setItem('buzzin_room', code)
+  localStorage.setItem('buzzin_username', username)
+}
+export function clearLastSession() {
+  localStorage.removeItem('buzzin_room')
+  localStorage.removeItem('buzzin_username')
+}
+export function getLastSession() {
+  const code     = localStorage.getItem('buzzin_room')
+  const username = localStorage.getItem('buzzin_username')
+  return code && username ? { code, username } : null
+}
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
@@ -20,14 +34,22 @@ async function post(path, body = {}) {
 }
 
 async function get(path) {
-  const res = await fetch(`${API}${path}`)
+  const res = await fetch(`${API}${path}`, { headers: { 'x-session-id': SESSION_ID } })
   const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Request failed')
+  if (!res.ok) throw Object.assign(new Error(data.error || 'Request failed'), { code: data.error })
   return data
 }
 
-export const createRoom  = (username)           => post('/rooms', { username })
-export const joinRoom    = (code, username)      => post(`/rooms/${code.toUpperCase().replace(/\s/g,'')}/join`, { username })
+export async function createRoom(username) {
+  const room = await post('/rooms', { username })
+  saveLastSession(room.code, username)
+  return room
+}
+export async function joinRoom(code, username) {
+  const room = await post(`/rooms/${code.toUpperCase().replace(/\s/g,'')}/join`, { username })
+  saveLastSession(room.code, username)
+  return room
+}
 export const pollRoom    = (code)                => get(`/rooms/${code}`)
 
 export function leaveRoom(code) {
@@ -48,3 +70,5 @@ export const stopRace    = (code)                 => post(`/rooms/${code}/race/s
 export const submitReaction = (code)              => post(`/rooms/${code}/race/submit`)
 
 export const updateSettings = (code, settings) => post(`/rooms/${code}/settings`, settings)
+export const awardPoints   = (code, payload)  => post(`/rooms/${code}/award`, payload)
+export const resetScores = (code) => post(`/rooms/${code}/scores/reset`)

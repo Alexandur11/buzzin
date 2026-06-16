@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
+import QRCode from 'react-qr-code'
 import { SESSION_ID, pollRoom, leaveRoom, kickPlayer } from '../store/rooms'
 import Leaderboard from './Leaderboard'
+import AwardPoints from './AwardPoints'
 import TeamsPanel from './TeamsPanel'
 import RacePanel from './RacePanel'
 import SettingsPanel from './SettingsPanel'
@@ -14,6 +16,7 @@ const RECONNECT_BACKOFF = [2500, 3000, 5000, 8000, 15000]
 export default function Room({ room: initialRoom, onLeave, onKicked }) {
   const [room, setRoom]           = useState(initialRoom)
   const [copied, setCopied]       = useState(false)
+  const [showQR, setShowQR]       = useState(false)
   const [mainTab, setMainTab]     = useState('race')   // 'race' | 'history'
   const [sideTab, setSideTab]     = useState('leaderboard') // 'leaderboard' | 'teams' | 'settings'
   const [connStatus, setConnStatus] = useState('connected') // 'connected' | 'reconnecting' | 'disconnected'
@@ -30,6 +33,7 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
       setRoom(fresh)
       setFailCount(0)
       setConnStatus('connected')
+      return fresh
     } catch (err) {
       if (err.code === 'kicked') { onKicked(); return }
       if (err.message === 'Room not found') { onLeave(); return }
@@ -44,9 +48,9 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
 
     async function loop() {
       if (cancelled) return
-      await doPoll()
+      const fresh = await doPoll()
       if (cancelled) return
-      const raceInProgress = room.race?.status === 'active' || room.race?.status === 'countdown'
+      const raceInProgress = fresh?.race?.status === 'active' || fresh?.race?.status === 'countdown'
       const normalDelay = raceInProgress ? POLL_ACTIVE : POLL_IDLE
       const delay = connStatus === 'connected'
         ? normalDelay
@@ -94,6 +98,13 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
                 : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
               }
             </button>
+            <button className="copy-btn" onClick={() => setShowQR(true)} title="Show QR code">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/>
+                <path d="M14 14h3v3h-3z" fill="currentColor" stroke="none"/><path d="M17 17h4"/><path d="M21 14v3"/>
+              </svg>
+            </button>
           </div>
           {room.settings?.maxRounds > 0 && (
             <span className="rounds-progress">
@@ -122,6 +133,13 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
           {sideTab === 'leaderboard' && (
             <>
               <Leaderboard entries={room.leaderboard} />
+              {isCreator && room.leaderboard?.length > 0 && (
+                <AwardPoints
+                  entries={room.leaderboard}
+                  teams={room.teams ?? []}
+                  roomCode={room.code}
+                />
+              )}
               {isCreator && room.leaderboard?.filter(e => e.sessionId !== SESSION_ID).length > 0 && (
                 <div className="kick-section">
                   <p className="kick-label">KICK PLAYER</p>
@@ -174,6 +192,23 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
         </main>
 
       </div>
+      {showQR && (
+        <div className="qr-backdrop" onClick={() => setShowQR(false)}>
+          <div className="qr-modal" onClick={e => e.stopPropagation()}>
+            <p className="qr-label">SCAN TO JOIN</p>
+            <div className="qr-code-wrap">
+              <QRCode
+                value={`${window.location.origin}?join=${room.code}`}
+                size={200}
+                bgColor="#ffffff"
+                fgColor="#0a0a0a"
+              />
+            </div>
+            <p className="qr-code-text">{room.code}</p>
+            <button className="qr-close" onClick={() => setShowQR(false)}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

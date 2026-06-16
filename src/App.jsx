@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import Home from './components/Home'
 import Room from './components/Room'
-import { leaveRoom } from './store/rooms'
+import { SESSION_ID, leaveRoom, joinRoom, pollRoom, getLastSession, clearLastSession } from './store/rooms'
 import './App.css'
+
+const initialJoinCode = new URLSearchParams(window.location.search).get('join') ?? ''
 
 export default function App() {
   const [visible, setVisible]       = useState(false)
@@ -13,6 +15,22 @@ export default function App() {
     return () => clearTimeout(t)
   }, [])
 
+  // Attempt silent rejoin on load if a previous session exists
+  useEffect(() => {
+    const last = getLastSession()
+    if (!last) return
+    pollRoom(last.code)
+      .then(room => {
+        const stillMember = room.leaderboard?.some(e => e.sessionId === SESSION_ID)
+        if (stillMember) {
+          setCurrentRoom(room)
+        } else {
+          return joinRoom(last.code, last.username).then(setCurrentRoom)
+        }
+      })
+      .catch(() => clearLastSession())
+  }, [])
+
   useEffect(() => {
     if (!currentRoom) return
     function handleUnload() { leaveRoom(currentRoom.code) }
@@ -21,7 +39,7 @@ export default function App() {
   }, [currentRoom])
 
   async function handleLogoClick() {
-    if (currentRoom) { leaveRoom(currentRoom.code); setCurrentRoom(null) }
+    if (currentRoom) { leaveRoom(currentRoom.code); clearLastSession(); setCurrentRoom(null) }
   }
 
   return (
@@ -42,10 +60,14 @@ export default function App() {
       </header>
 
       {currentRoom ? (
-        <Room room={currentRoom} onLeave={() => setCurrentRoom(null)} />
+        <Room
+          room={currentRoom}
+          onLeave={() => { clearLastSession(); setCurrentRoom(null) }}
+          onKicked={() => { clearLastSession(); setCurrentRoom(null) }}
+        />
       ) : (
         <>
-          <Home onEnterRoom={setCurrentRoom} />
+          <Home onEnterRoom={setCurrentRoom} initialJoinCode={initialJoinCode} />
           <div className="ticker">
             <div className="ticker-inner">
               {Array(6).fill('BUZZIN · LIVE ROOMS · SHARE THE CODE · ').map((t, i) => (

@@ -48,16 +48,14 @@
 
 /* ── Create form ── */
 .team-form {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
-  align-items: center;
   margin-bottom: 12px;
-  flex-wrap: wrap;
 }
 
 .team-input {
-  flex: 1;
-  min-width: 0;
+  grid-column: 1 / -1;
   font-family: var(--font-body);
   font-size: 0.85rem;
   color: var(--text);
@@ -65,6 +63,7 @@
   border: 1px solid var(--border);
   padding: 7px 10px;
   outline: none;
+  caret-color: var(--accent);
   transition: border-color 0.2s;
 }
 .team-input:focus { border-color: var(--accent); }
