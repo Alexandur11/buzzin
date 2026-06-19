@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { updateSettings } from '../store/rooms'
+import { BUZZ_SOUNDS, DEFAULT_BUZZ_SOUND, playBuzz } from '../sound'
 import './SettingsPanel.css'
 
 export default function SettingsPanel({ settings, roomCode, locked }) {
@@ -71,6 +72,21 @@ export default function SettingsPanel({ settings, roomCode, locked }) {
           </span>
         </label>
         <p className="sp-desc">Adds a random 0–5s hidden delay after the countdown. Early clicks are disqualified.</p>
+      </div>
+
+      <div className="sp-field">
+        <label className="sp-label">Buzz Sound <span className="sp-hint">(everyone in the room)</span></label>
+        <div className="sp-row">
+          <select className="sp-select"
+            value={local.buzzSound ?? DEFAULT_BUZZ_SOUND}
+            onChange={e => set('buzzSound', e.target.value)}
+            disabled={locked}>
+            {BUZZ_SOUNDS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </select>
+          <button type="button" className="sp-preview-btn"
+            onClick={() => playBuzz(local.buzzSound ?? DEFAULT_BUZZ_SOUND)}
+            title="Preview sound">▶</button>
+        </div>
       </div>
 
       {error && <p className="sp-error">{error}</p>}

@@ -34,6 +34,9 @@
   color: var(--accent);
   transition: color 0.3s;
   white-space: nowrap;
+  /* fixed-width digits so the timer doesn't shift as it counts down */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 .race-countdown.urgent { color: #f87171; }
 .race-countdown-unit { font-size: 1.2rem; margin-left: 2px; }
@@ -69,6 +72,7 @@
   transition: background 0.2s, opacity 0.2s;
 }
 .btn-race-start:hover:not(:disabled) { background: var(--accent-dim); }
+.btn-race-start:active:not(:disabled) { background: var(--accent-dim); transform: scale(0.96); }
 .btn-race-start:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-race-stop {
@@ -85,11 +89,12 @@
   transition: background 0.2s, opacity 0.2s;
 }
 .btn-race-stop:hover:not(:disabled) { background: rgba(248,113,113,0.1); }
+.btn-race-stop:active:not(:disabled) { background: rgba(248,113,113,0.2); transform: scale(0.96); }
 .btn-race-stop:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .responded-count {
-  font-size: 0.72rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -111,12 +116,23 @@
   background: var(--accent);
   border: none;
   padding: 32px;
+  min-height: 96px;
   cursor: pointer;
   width: 100%;
-  transition: background 0.15s, transform 0.1s;
+  transition: background 0.1s, transform 0.08s;
+  /* stop text selection / callout on the big repeatedly-tapped button */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
-.buzz-btn:hover  { background: var(--accent-dim); }
-.buzz-btn:active { transform: scale(0.98); }
+@media (hover: hover) {
+  .buzz-btn:hover { background: var(--accent-dim); }
+}
+/* immediate, pronounced press feedback */
+.buzz-btn:active { background: var(--accent-dim); transform: scale(0.96); }
+.buzz-btn.inactive:active,
+.buzz-btn.closed-state:active,
+.buzz-btn.countdown-phase:active { transform: none; }
 
 .buzz-btn.inactive {
   background: var(--border);
@@ -167,6 +183,8 @@
   font-size: 1.8rem;
   color: var(--accent);
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 .late-msg {
@@ -178,10 +196,19 @@
 }
 
 .waiting-msg {
-  font-size: 0.8rem;
-  font-weight: 300;
+  font-size: 0.85rem;
+  font-weight: 400;
   color: var(--text-muted);
   letter-spacing: 0.05em;
+  /* subtle pulse so the waiting state reads as "live / in progress" */
+  animation: waiting-pulse 1.4s ease-in-out infinite;
+}
+@keyframes waiting-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .waiting-msg { animation: none; }
 }
 
 /* ── Results & team summary ── */
@@ -198,8 +225,8 @@
 .results-table { width: 100%; border-collapse: collapse; }
 
 .rt-th {
-  font-size: 0.62rem;
-  font-weight: 500;
+  font-size: 0.72rem;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -212,17 +239,19 @@
 
 .rt-td {
   padding: 9px 0;
-  font-size: 0.85rem;
-  font-weight: 300;
+  font-size: 0.875rem;
+  font-weight: 400;
   color: var(--text);
   border-bottom: 1px solid var(--border);
 }
-.rt-td.pos { color: var(--text-muted); font-size: 0.78rem; }
+.rt-td.pos { color: var(--text-muted); font-size: 0.8rem; }
 .rt-td.right {
   font-family: var(--font-display);
   font-size: 1.05rem;
   color: var(--accent);
   letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 .rt-td.no-resp {
   font-family: var(--font-body);
@@ -274,6 +303,8 @@
   color: var(--accent);
   line-height: 1;
   min-width: 48px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 /* ── Buzz variants ── */
@@ -326,3 +357,11 @@
 
 .early-row .rt-td { color: #fbbf24; opacity: 0.8; }
 .early-label { font-family: var(--font-body) !important; font-size: 0.78rem !important; color: #fbbf24 !important; font-style: italic; }
+
+/* ── Mobile: bigger hero BUZZ target, tighter top bar ── */
+@media (max-width: 640px) {
+  .buzz-btn { min-height: 150px; }
+  .race-controls { width: 100%; justify-content: flex-end; }
+  /* let the status (countdown/timer) and controls each take a full row */
+  .race-topbar { gap: 12px; }
+}

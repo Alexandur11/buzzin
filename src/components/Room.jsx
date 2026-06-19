@@ -13,18 +13,63 @@ const POLL_IDLE         = 2500   // between races — no urgency
 const POLL_ACTIVE       = 800    // during countdown/active — need low latency
 const RECONNECT_BACKOFF = [2500, 3000, 5000, 8000, 15000]
 
+// Copy text to the clipboard. navigator.clipboard only exists in a secure
+// context (HTTPS or localhost), so over plain http:// — e.g. an EC2 box served
+// on http://<public-ip> — it is undefined. Fall back to a temporary textarea +
+// execCommand('copy'), which works in non-secure contexts. Returns success.
+async function copyText(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch { /* fall through to legacy path */ }
+
+  try {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    document.body.appendChild(ta)
+    ta.focus(); ta.select()
+    const ok = document.execCommand('copy')
+    document.body.removeChild(ta)
+    return ok
+  } catch {
+    return false
+  }
+}
+
+// Track the mobile breakpoint (kept in sync with the 640px CSS breakpoint) so we
+// can render a single-tab layout on phones and the two-column layout on desktop.
+function useIsMobile() {
+  const query = '(max-width: 640px)'
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.matchMedia(query).matches
+  )
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const onChange = () => setIsMobile(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return isMobile
+}
+
 export default function Room({ room: initialRoom, onLeave, onKicked }) {
   const [room, setRoom]           = useState(initialRoom)
   const [copied, setCopied]       = useState(false)
   const [showQR, setShowQR]       = useState(false)
-  const [mainTab, setMainTab]     = useState('race')   // 'race' | 'history'
-  const [sideTab, setSideTab]     = useState('leaderboard') // 'leaderboard' | 'teams' | 'settings'
+  const [mainTab, setMainTab]     = useState('race')   // desktop main column: 'race' | 'history'
+  const [sideTab, setSideTab]     = useState('leaderboard') // desktop sidebar: 'leaderboard' | 'teams' | 'settings'
+  const [mobileTab, setMobileTab] = useState('race')   // mobile unified tab: 'race' | 'board' | 'teams' | 'history' | 'settings'
   const [connStatus, setConnStatus] = useState('connected') // 'connected' | 'reconnecting' | 'disconnected'
   const [failCount, setFailCount] = useState(0)
 
   const isCreator = room.creatorId === SESSION_ID
   const myTeam    = room.leaderboard?.find(e => e.sessionId === SESSION_ID)?.team ?? null
   const raceActive = room.race?.status === 'active' || room.race?.status === 'countdown'
+  const isMobile  = useIsMobile()
 
   // Poll with reconnect backoff
   const doPoll = useCallback(async () => {
@@ -62,9 +107,22 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
     return () => { cancelled = true; clearTimeout(timeout) }
   }, [doPoll, failCount])
 
+  // iOS Safari (and others) suspend timers in backgrounded tabs, so the poll
+  // loop stalls while hidden. Force an immediate refresh the moment the tab
+  // becomes visible again so the room state can't be left stale.
+  useEffect(() => {
+    function onVisible() { if (document.visibilityState === 'visible') doPoll() }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('pageshow', onVisible)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('pageshow', onVisible)
+    }
+  }, [doPoll])
+
   function handleCopy() {
-    navigator.clipboard.writeText(room.code).then(() => {
-      setCopied(true); setTimeout(() => setCopied(false), 2000)
+    copyText(room.code).then(ok => {
+      if (ok) { setCopied(true); setTimeout(() => setCopied(false), 2000) }
     })
   }
 
@@ -75,6 +133,41 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
   async function handleKick(targetId) {
     try { await kickPlayer(room.code, targetId) } catch (e) { console.error(e) }
   }
+
+  // ── Section content shared between the desktop columns and the mobile tabs ──
+  const boardPanel = (
+    <>
+      <Leaderboard entries={room.leaderboard} />
+      {isCreator && room.leaderboard?.length > 0 && (
+        <AwardPoints entries={room.leaderboard} teams={room.teams ?? []} roomCode={room.code} />
+      )}
+      {isCreator && room.leaderboard?.filter(e => e.sessionId !== SESSION_ID).length > 0 && (
+        <div className="kick-section">
+          <p className="kick-label">KICK PLAYER</p>
+          {room.leaderboard.filter(e => e.sessionId !== SESSION_ID).map(e => (
+            <div key={e.sessionId} className="kick-row">
+              <span className="kick-name">{e.username}</span>
+              <button className="kick-btn" onClick={() => handleKick(e.sessionId)}>Kick</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  )
+  const teamsPanel    = <TeamsPanel teams={room.teams ?? []} myTeam={myTeam} roomCode={room.code} />
+  const settingsPanel = isCreator
+    ? <SettingsPanel settings={room.settings} roomCode={room.code} locked={raceActive} />
+    : null
+  const racePanel = (
+    <RacePanel
+      race={room.race}
+      roomCode={room.code}
+      isCreator={isCreator}
+      settings={room.settings}
+      raceNumber={room.raceNumber}
+    />
+  )
+  const historyPanel = <HistoryPanel history={room.history} />
 
   return (
     <div className="room-layout">
@@ -120,78 +213,55 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
       </div>
 
       {/* ── Body ── */}
-      <div className="room-body">
-
-        {/* Sidebar */}
-        <aside className="room-sidebar">
-          <div className="side-tabs">
-            <button className={`side-tab ${sideTab === 'leaderboard' ? 'active' : ''}`} onClick={() => setSideTab('leaderboard')}>Board</button>
-            <button className={`side-tab ${sideTab === 'teams' ? 'active' : ''}`} onClick={() => setSideTab('teams')}>Teams</button>
-            {isCreator && <button className={`side-tab ${sideTab === 'settings' ? 'active' : ''}`} onClick={() => setSideTab('settings')}>⚙</button>}
-          </div>
-
-          {sideTab === 'leaderboard' && (
-            <>
-              <Leaderboard entries={room.leaderboard} />
-              {isCreator && room.leaderboard?.length > 0 && (
-                <AwardPoints
-                  entries={room.leaderboard}
-                  teams={room.teams ?? []}
-                  roomCode={room.code}
-                />
-              )}
-              {isCreator && room.leaderboard?.filter(e => e.sessionId !== SESSION_ID).length > 0 && (
-                <div className="kick-section">
-                  <p className="kick-label">KICK PLAYER</p>
-                  {room.leaderboard.filter(e => e.sessionId !== SESSION_ID).map(e => (
-                    <div key={e.sessionId} className="kick-row">
-                      <span className="kick-name">{e.username}</span>
-                      <button className="kick-btn" onClick={() => handleKick(e.sessionId)}>Kick</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-
-          {sideTab === 'teams' && (
-            <TeamsPanel teams={room.teams ?? []} myTeam={myTeam} roomCode={room.code} />
-          )}
-
-          {sideTab === 'settings' && isCreator && (
-            <SettingsPanel
-              settings={room.settings}
-              roomCode={room.code}
-              locked={raceActive}
-            />
-          )}
-        </aside>
-
-        {/* Main */}
-        <main className="room-main">
-          <div className="main-tabs">
-            <button className={`main-tab ${mainTab === 'race' ? 'active' : ''}`} onClick={() => setMainTab('race')}>Race</button>
-            <button className={`main-tab ${mainTab === 'history' ? 'active' : ''}`} onClick={() => setMainTab('history')}>
+      {isMobile ? (
+        /* Mobile: one full-width section at a time, race first */
+        <div className="room-mobile">
+          <div className="mobile-tabs">
+            <button className={`mobile-tab ${mobileTab === 'race' ? 'active' : ''}`} onClick={() => setMobileTab('race')}>Race</button>
+            <button className={`mobile-tab ${mobileTab === 'board' ? 'active' : ''}`} onClick={() => setMobileTab('board')}>Board</button>
+            <button className={`mobile-tab ${mobileTab === 'teams' ? 'active' : ''}`} onClick={() => setMobileTab('teams')}>Teams</button>
+            <button className={`mobile-tab ${mobileTab === 'history' ? 'active' : ''}`} onClick={() => setMobileTab('history')}>
               History {room.history?.length > 0 && <span className="tab-count">{room.history.length}</span>}
             </button>
+            {isCreator && <button className={`mobile-tab settings ${mobileTab === 'settings' ? 'active' : ''}`} onClick={() => setMobileTab('settings')}>⚙</button>}
           </div>
 
-          {mainTab === 'race' && (
-            <RacePanel
-              race={room.race}
-              roomCode={room.code}
-              isCreator={isCreator}
-              settings={room.settings}
-              raceNumber={room.raceNumber}
-            />
-          )}
+          <div className="mobile-panel">
+            {mobileTab === 'race'     && racePanel}
+            {mobileTab === 'board'    && boardPanel}
+            {mobileTab === 'teams'    && teamsPanel}
+            {mobileTab === 'history'  && historyPanel}
+            {mobileTab === 'settings' && settingsPanel}
+          </div>
+        </div>
+      ) : (
+        /* Desktop: standings sidebar alongside the race/main column */
+        <div className="room-body">
+          <aside className="room-sidebar">
+            <div className="side-tabs">
+              <button className={`side-tab ${sideTab === 'leaderboard' ? 'active' : ''}`} onClick={() => setSideTab('leaderboard')}>Board</button>
+              <button className={`side-tab ${sideTab === 'teams' ? 'active' : ''}`} onClick={() => setSideTab('teams')}>Teams</button>
+              {isCreator && <button className={`side-tab ${sideTab === 'settings' ? 'active' : ''}`} onClick={() => setSideTab('settings')}>⚙</button>}
+            </div>
 
-          {mainTab === 'history' && (
-            <HistoryPanel history={room.history} />
-          )}
-        </main>
+            {sideTab === 'leaderboard' && boardPanel}
+            {sideTab === 'teams'       && teamsPanel}
+            {sideTab === 'settings'    && settingsPanel}
+          </aside>
 
-      </div>
+          <main className="room-main">
+            <div className="main-tabs">
+              <button className={`main-tab ${mainTab === 'race' ? 'active' : ''}`} onClick={() => setMainTab('race')}>Race</button>
+              <button className={`main-tab ${mainTab === 'history' ? 'active' : ''}`} onClick={() => setMainTab('history')}>
+                History {room.history?.length > 0 && <span className="tab-count">{room.history.length}</span>}
+              </button>
+            </div>
+
+            {mainTab === 'race'    && racePanel}
+            {mainTab === 'history' && historyPanel}
+          </main>
+        </div>
+      )}
       {showQR && (
         <div className="qr-backdrop" onClick={() => setShowQR(false)}>
           <div className="qr-modal" onClick={e => e.stopPropagation()}>

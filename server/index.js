@@ -7,7 +7,11 @@ const DEFAULT_SETTINGS = {
   countdownMs:     3_000,
   maxRounds:           0,
   fakeoutEnabled:  false,
+  buzzSound:   'classic',
 }
+
+// Allowed buzz-sound preset ids — must mirror PRESETS in src/sound.js.
+const BUZZ_SOUNDS = new Set(['classic', 'gameshow', 'arcade', 'airhorn', 'laser', 'ding', 'chime', 'bell'])
 
 // ─── Store shape ─────────────────────────────────────────────────────────────
 //
@@ -362,7 +366,7 @@ const server = http.createServer(async (req, res) => {
     const settingsMatch = url.match(/^\/rooms\/([A-Z0-9-]+)\/settings$/)
     if (method === 'POST' && settingsMatch) {
       const code = settingsMatch[1].toUpperCase()
-      const { sessionId, raceDurationMs, countdownMs, maxRounds, fakeoutEnabled } = await readBody(req)
+      const { sessionId, raceDurationMs, countdownMs, maxRounds, fakeoutEnabled, buzzSound } = await readBody(req)
       const room = rooms.get(code)
       if (!room) return json(res, 404, { error: 'Room not found' })
       if (room.creatorId !== sessionId) return json(res, 403, { error: 'Only the room creator can change settings' })
@@ -372,6 +376,7 @@ const server = http.createServer(async (req, res) => {
       if (countdownMs    != null) room.settings.countdownMs    = Math.max(1_000, Math.min(10_000, Number(countdownMs)))
       if (maxRounds      != null) room.settings.maxRounds      = Math.max(0, Math.min(20, Number(maxRounds)))
       if (fakeoutEnabled != null) room.settings.fakeoutEnabled = Boolean(fakeoutEnabled)
+      if (buzzSound != null && BUZZ_SOUNDS.has(buzzSound)) room.settings.buzzSound = buzzSound
       return json(res, 200, roomView(room))
     }
 

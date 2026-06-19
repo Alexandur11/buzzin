@@ -4,6 +4,12 @@
   padding: 0;
 }
 
+html {
+  /* Stop iOS/Safari from inflating text on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 :root {
   color-scheme: dark;
   --bg: #0a0a0a;
@@ -28,4 +34,51 @@ body {
   -webkit-font-smoothing: antialiased;
   /* allow inner elements to scroll, shell handles layout */
   overflow: hidden;
+  /* never allow sideways scroll on phones */
+  overflow-x: hidden;
 }
+
+/* ── Touch / cross-browser interactive defaults ──────────────────────────── */
+button,
+[role="button"],
+summary,
+a {
+  /* kill the grey flash on tap (Chrome/Android, Samsung Internet) */
+  -webkit-tap-highlight-color: transparent;
+  /* remove the legacy 300ms tap delay and prevent double-tap zoom on controls */
+  touch-action: manipulation;
+}
+
+button {
+  /* iOS doesn't inherit font into buttons by default */
+  font-family: inherit;
+}
+
+/* Form controls at 16px so iOS Safari never auto-zooms on focus. Component
+   classes with their own (larger) size still win via higher specificity; this
+   only sets the floor for anything smaller. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* Inputs/selects shouldn't render a forced light theme in any browser. */
+input,
+select,
+textarea,
+button {
+  color-scheme: dark;
+}
+
+/* ── Minimum tap targets on touch devices (Google/Apple HIG: 48×48) ───────── */
+@media (pointer: coarse) {
+  button,
+  select,
+  input,
+  summary,
+  [role="button"] {
+    min-height: 48px;
+  }
+}
+

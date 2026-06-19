@@ -1,5 +1,8 @@
 .shell {
-  height: 100vh;
+  height: 100vh;          /* fallback for older browsers */
+  height: 100dvh;         /* tracks mobile browser chrome (iOS Safari/Chrome Android) */
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -161,6 +164,10 @@
   transition: background 0.2s, transform 0.15s, opacity 0.2s;
   white-space: nowrap;
 }
-.btn-primary:hover:not(:disabled)  { background: var(--accent-dim); transform: translateY(-2px); }
+/* Hover lift only where a real pointer exists, so it can't stick after a tap. */
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dim); transform: translateY(-2px); }
+}
+.btn-primary:active:not(:disabled) { background: var(--accent-dim); transform: scale(0.97); }
 .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
 .btn-primary.wide { width: 100%; padding: 16px; font-size: 0.9rem; }

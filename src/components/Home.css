@@ -88,9 +88,16 @@
   white-space: nowrap;
 }
 
-.btn-primary:hover:not(:disabled) {
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-dim);
+    transform: translateY(-2px);
+  }
+}
+
+.btn-primary:active:not(:disabled) {
   background: var(--accent-dim);
-  transform: translateY(-2px);
+  transform: scale(0.97);
 }
 
 .btn-primary:disabled {

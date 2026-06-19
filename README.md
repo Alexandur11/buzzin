@@ -64,14 +64,6 @@ Notes:
 npm ci
 npm run build
 ```
-
-## API (summary)
-
-- `POST /rooms` — create a room (body: `{ sessionId, username }`)
-- `POST /rooms/:code/join` — join room (body: `{ sessionId, username }`)
-- `POST /rooms/:code/leave` — leave room (body: `{ sessionId }`)
-- `GET /rooms/:code` — fetch room view
-
 See `server/index.js` for the full behavior and additional endpoints (teams, race lifecycle).
 
 ## Troubleshooting

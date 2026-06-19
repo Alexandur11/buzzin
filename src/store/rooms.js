@@ -20,7 +20,13 @@ export function getLastSession() {
   return code && username ? { code, username } : null
 }
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+// Default to the same-origin "/api" path, which both the Vite dev server and the
+// production nginx config proxy to the backend on :4000. Using a relative path
+// (instead of an absolute http://localhost:4000) means the API is reached via
+// whatever host loaded the page — so other devices on the LAN, or a deployed
+// box, work without baking in a machine-specific address. Override with
+// VITE_API_URL only if the backend lives on a different origin.
+const API = import.meta.env.VITE_API_URL || '/api'
 
 async function post(path, body = {}) {
   const res = await fetch(`${API}${path}`, {

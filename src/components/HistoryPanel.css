@@ -56,8 +56,8 @@
 }
 
 .hp-th {
-  font-size: 0.6rem;
-  font-weight: 500;
+  font-size: 0.72rem;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -69,16 +69,18 @@
 .hp-th.pos,   .hp-td.pos   { width: 28px; }
 
 .hp-td {
-  padding: 7px 14px;
-  font-size: 0.82rem;
-  font-weight: 300;
+  padding: 9px 14px;
+  font-size: 0.875rem;
+  font-weight: 400;
   color: var(--text);
   border-bottom: 1px solid var(--border);
 }
 .hp-td.right {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 .hp-td.pos { color: var(--text-muted); font-size: 0.75rem; }
 

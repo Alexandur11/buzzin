@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { SESSION_ID, startRace, stopRace, submitReaction } from '../store/rooms'
+import { playBuzz, playEarly } from '../sound'
 import './RacePanel.css'
 
 export default function RacePanel({ race, roomCode, isCreator, settings, raceNumber }) {
@@ -60,6 +61,10 @@ export default function RacePanel({ race, roomCode, isCreator, settings, raceNum
   async function handleBuzz() {
     if (submitted) return
     if (!race || race.status === 'closed') { setLatePress(true); return }
+
+    // Instant audio feedback on press, before the server round-trip.
+    if (race.status === 'countdown') playEarly()
+    else playBuzz(settings?.buzzSound)
 
     try {
       const res = await submitReaction(roomCode)
