@@ -22,8 +22,8 @@ for production.
   measured server-side in milliseconds.
 - 🥇 **Live leaderboard** — points ranking with medals, updated as you play.
 - 👥 **Teams** — create/join teams; award points per player or per whole team.
-- 🎛️ **Host controls** — start/stop races, award/deduct points, reset scores,
-  kick players.
+- 🎛️ **Host controls** — start/stop races, a round-end popup to award/deduct
+  points per player or team, reset scores, kick players.
 - 🕵️ **Fakeout anti-cheat** — optional random 0–5s hidden delay after the
   countdown; jumping the gun disqualifies the click.
 - 🔊 **8 synthesized buzzer sounds** — generated with the Web Audio API (no audio
@@ -41,8 +41,9 @@ for production.
 3. *(optional)* Players **form teams**; the host tweaks **settings** (race length,
    countdown, rounds, fakeout, buzzer sound).
 4. The host presses **Start Race**. Everyone sees a countdown, then **BUZZ!**.
-5. Reaction times appear ranked live; when the race ends the host **awards
-   points**. Repeat, and watch the **leaderboard**.
+5. Reaction times appear ranked live; when the race ends a popup lets the host
+   **award points** (the winner is pre-selected). Dismiss it and start the next
+   race. Watch the **leaderboard** climb.
 
 ## Quickstart (local)
 
@@ -123,7 +124,7 @@ Notes:
 │   ├── sound.js            # Web Audio buzzer presets
 │   ├── store/rooms.js      # the only module that talks to the API
 │   └── components/         # Home, Room, RacePanel, Leaderboard, TeamsPanel,
-│                           # AwardPoints, SettingsPanel, HistoryPanel, …
+│                           # AwardModal, SettingsPanel, HistoryPanel, …
 ├── Dockerfile              # frontend multi-stage build → nginx
 ├── nginx.conf              # nginx: proxy /api → server, SPA fallback, caching
 ├── docker-compose.yml      # app + server services

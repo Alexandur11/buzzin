@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import QRCode from 'react-qr-code'
-import { SESSION_ID, pollRoom, leaveRoom, kickPlayer } from '../store/rooms'
+import { SESSION_ID, pollRoom, leaveRoom, kickPlayer, resetScores } from '../store/rooms'
 import Leaderboard from './Leaderboard'
-import AwardPoints from './AwardPoints'
+import AwardModal from './AwardModal'
 import TeamsPanel from './TeamsPanel'
 import RacePanel from './RacePanel'
 import SettingsPanel from './SettingsPanel'
@@ -65,6 +65,9 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
   const [mobileTab, setMobileTab] = useState('race')   // mobile unified tab: 'race' | 'board' | 'teams' | 'history' | 'settings'
   const [connStatus, setConnStatus] = useState('connected') // 'connected' | 'reconnecting' | 'disconnected'
   const [failCount, setFailCount] = useState(0)
+  const [awardedRaceId, setAwardedRaceId] = useState(null) // race whose award popup was dismissed
+  const [confirmReset, setConfirmReset]   = useState(false)
+  const [resetBusy, setResetBusy]         = useState(false)
 
   const isCreator = room.creatorId === SESSION_ID
   const myTeam    = room.leaderboard?.find(e => e.sessionId === SESSION_ID)?.team ?? null
@@ -134,13 +137,16 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
     try { await kickPlayer(room.code, targetId) } catch (e) { console.error(e) }
   }
 
+  async function handleReset() {
+    setResetBusy(true)
+    try { await resetScores(room.code) } catch (e) { console.error(e) }
+    finally { setResetBusy(false); setConfirmReset(false) }
+  }
+
   // ── Section content shared between the desktop columns and the mobile tabs ──
   const boardPanel = (
     <>
       <Leaderboard entries={room.leaderboard} />
-      {isCreator && room.leaderboard?.length > 0 && (
-        <AwardPoints entries={room.leaderboard} teams={room.teams ?? []} roomCode={room.code} />
-      )}
       {isCreator && room.leaderboard?.filter(e => e.sessionId !== SESSION_ID).length > 0 && (
         <div className="kick-section">
           <p className="kick-label">KICK PLAYER</p>
@@ -150,6 +156,19 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
               <button className="kick-btn" onClick={() => handleKick(e.sessionId)}>Kick</button>
             </div>
           ))}
+        </div>
+      )}
+      {isCreator && room.leaderboard?.length > 0 && (
+        <div className="reset-section">
+          {confirmReset ? (
+            <>
+              <span className="reset-confirm-text">Reset all scores?</span>
+              <button className="reset-btn confirm" onClick={handleReset} disabled={resetBusy}>Yes</button>
+              <button className="reset-btn cancel" onClick={() => setConfirmReset(false)}>No</button>
+            </>
+          ) : (
+            <button className="reset-btn" onClick={() => setConfirmReset(true)} disabled={resetBusy}>Reset Scores</button>
+          )}
         </div>
       )}
     </>
@@ -262,6 +281,19 @@ export default function Room({ room: initialRoom, onLeave, onKicked }) {
           </main>
         </div>
       )}
+      {/* Round-end award popup — host only, shown once per race */}
+      {isCreator && room.race?.status === 'closed' && room.race.id !== awardedRaceId && (
+        <AwardModal
+          key={room.race.id}
+          race={room.race}
+          entries={room.leaderboard}
+          teams={room.teams ?? []}
+          roomCode={room.code}
+          raceNumber={room.raceNumber}
+          onDone={() => setAwardedRaceId(room.race.id)}
+        />
+      )}
+
       {showQR && (
         <div className="qr-backdrop" onClick={() => setShowQR(false)}>
           <div className="qr-modal" onClick={e => e.stopPropagation()}>

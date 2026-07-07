@@ -1,3 +1,4 @@
+export { default as AwardModal } from './AwardModal'
 export { default as HistoryPanel } from './HistoryPanel'
 export { default as Home } from './Home'
 export { default as Leaderboard } from './Leaderboard'

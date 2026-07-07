@@ -1,23 +1,79 @@
-.award-panel {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.award-title {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.3em;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
-
-.award-mode-row {
+/* ── Round-end award popup ── */
+.award-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
   display: flex;
-  gap: 0;
-  margin-bottom: 8px;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  padding: 16px;
+  animation: am-fade 0.15s ease-out;
+}
+@keyframes am-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.award-modal {
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 24px 22px;
+  animation: am-pop 0.18s ease-out;
+}
+@keyframes am-pop { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.am-eyebrow {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.am-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  margin-bottom: 14px;
 }
 
+/* Winner banner */
+.am-winner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: rgba(245,230,66,0.08);
+  border: 1px solid rgba(245,230,66,0.35);
+}
+.am-winner-medal { font-size: 1.3rem; }
+.am-winner-name {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.am-winner-time {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.am-noresults {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+/* Mode toggle (player / team) */
+.award-mode-row { display: flex; margin-bottom: 8px; }
 .award-mode-btn {
   flex: 1;
   font-family: var(--font-body);
@@ -34,15 +90,10 @@
 }
 .award-mode-btn + .award-mode-btn { border-left: none; }
 .award-mode-btn:active { transform: scale(0.97); }
-.award-mode-btn.active {
-  color: var(--bg);
-  background: var(--accent);
-  border-color: var(--accent);
-}
+.award-mode-btn.active { color: var(--bg); background: var(--accent); border-color: var(--accent); }
 
-/* Target picker (full-width row) */
-.award-target-row { margin-bottom: 8px; }
-
+/* Target picker */
+.award-target-row { margin-bottom: 10px; }
 .award-select {
   width: 100%;
   min-width: 0;
@@ -58,12 +109,7 @@
 .award-select:focus { border-color: var(--accent); }
 
 /* Quick-award chips */
-.award-quick {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-}
+.award-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .award-chip {
   flex: 1 1 auto;
   min-width: 50px;
@@ -71,7 +117,7 @@
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  padding: 10px 6px;
+  padding: 12px 6px;
   background: transparent;
   color: var(--text);
   border: 1px solid var(--border);
@@ -87,11 +133,7 @@
 .award-chip:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* Custom amount */
-.award-custom {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
+.award-custom { display: flex; gap: 8px; align-items: center; }
 .award-pts-input {
   flex: 1;
   min-width: 0;
@@ -125,56 +167,46 @@
 .award-btn:hover:not(:disabled) { background: var(--accent-dim); }
 .award-btn:active:not(:disabled) { background: var(--accent-dim); transform: scale(0.95); }
 .award-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.award-btn.ok  { background: #4ade80; color: #000; }
-.award-btn.err { background: #f87171; color: #000; }
 
-.award-hint {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 7px;
-  font-style: italic;
-}
-
-.award-feedback {
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-top: 7px;
-  font-variant-numeric: tabular-nums;
-}
-.award-feedback.ok  { color: #4ade80; }
+.award-feedback { font-size: 0.8rem; font-weight: 600; margin-top: 8px; font-variant-numeric: tabular-nums; }
 .award-feedback.err { color: #f87171; }
 
-.award-reset-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
+/* Running log of awards granted this round */
+.am-log {
+  margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid var(--border);
 }
-
-.award-reset-confirm {
-  flex: 1;
-  font-size: 0.78rem;
+.am-log-label {
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
   color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.am-log-item {
+  font-size: 0.82rem;
+  color: #4ade80;
+  font-weight: 600;
+  padding: 2px 0;
+  font-variant-numeric: tabular-nums;
 }
 
-.award-reset-btn {
+/* Done / dismiss */
+.am-done {
+  width: 100%;
+  margin-top: 18px;
   font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 9px 12px;
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid var(--border);
+  padding: 13px 0;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, transform 0.08s;
+  transition: background 0.15s, transform 0.08s;
 }
-.award-reset-btn:active:not(:disabled) { transform: scale(0.96); }
-.award-reset-btn:hover:not(:disabled) { color: #f87171; border-color: #f87171; }
-.award-reset-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.award-reset-btn.confirm { color: #f87171; border-color: #f87171; }
-.award-reset-btn.confirm:hover:not(:disabled) { background: rgba(248,113,113,0.1); }
-.award-reset-btn.cancel:hover:not(:disabled) { color: var(--text); border-color: var(--text-muted); }
+.am-done:hover  { background: var(--accent-dim); }
+.am-done:active { background: var(--accent-dim); transform: scale(0.98); }

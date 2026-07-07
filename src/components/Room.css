@@ -350,6 +350,40 @@
 .kick-btn:hover  { background: rgba(248,113,113,0.1); }
 .kick-btn:active { background: rgba(248,113,113,0.2); transform: scale(0.95); }
 
+/* ── Reset scores ── */
+.reset-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.reset-confirm-text {
+  flex: 1;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.reset-btn {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 9px 12px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.08s;
+}
+.reset-btn:active:not(:disabled) { transform: scale(0.96); }
+.reset-btn:hover:not(:disabled) { color: #f87171; border-color: #f87171; }
+.reset-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.reset-btn.confirm { color: #f87171; border-color: #f87171; }
+.reset-btn.confirm:hover:not(:disabled) { background: rgba(248,113,113,0.1); }
+.reset-btn.cancel:hover:not(:disabled) { color: var(--text); border-color: var(--text-muted); }
+
 /* ── QR modal ── */
 .qr-backdrop {
   position: fixed;

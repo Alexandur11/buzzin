@@ -170,13 +170,21 @@ App
 ├── Home                    (create / join tabs; not-in-room screen)
 │   └── UsernameModal       (pick username before entering)
 └── Room                    (in-room shell; owns the poll loop)
-    ├── Leaderboard         (points ranking, medals)
-    ├── AwardPoints         (host: quick-tap ± chips, custom, reset — player/team)
+    ├── Leaderboard         (points ranking, medals; host also gets Reset Scores here)
     ├── TeamsPanel          (create/join/leave teams, member lists)
     ├── RacePanel           (the game: countdown, BUZZ button, live/final results)
     ├── SettingsPanel       (host: duration/countdown/rounds/fakeout/sound sliders)
-    └── HistoryPanel        (collapsible per-race result tables, last 20)
+    ├── HistoryPanel        (collapsible per-race result tables, last 20)
+    └── AwardModal          (host: round-end popup — award points per player/team)
 ```
+
+**Points awarding** is a **round-end popup** ([AwardModal.jsx](src/components/AwardModal.jsx)),
+not a persistent panel. When a race closes, the host sees a modal that
+pre-selects the round winner; they can award to any player/team (quick-tap ±
+chips or a custom amount) as many times as they like — each award applies live
+and is logged — then **Done** dismisses it and readies the next race. The modal
+is shown once per race (`key`ed and gated on `race.id` vs. a dismissed id in
+[Room.jsx](src/components/Room.jsx)). **Reset Scores** lives in the board panel.
 
 `src/components/index.js` re-exports all components (barrel), though most imports
 are direct.
@@ -251,7 +259,8 @@ are direct.
 | A new API endpoint                    | [server/index.js](server/index.js) router + a wrapper in [store/rooms.js](src/store/rooms.js) |
 | Settings (bounds, new option)         | `DEFAULT_SETTINGS` + `/settings` handler in server, [SettingsPanel.jsx](src/components/SettingsPanel.jsx) |
 | Buzz sounds                           | [sound.js](src/sound.js) **and** the `BUZZ_SOUNDS` set in server |
-| Points / awarding / reset             | `/award`, `/scores/reset` in server + [AwardPoints.jsx](src/components/AwardPoints.jsx) |
+| Points / awarding                     | `/award` in server + [AwardModal.jsx](src/components/AwardModal.jsx) (round-end popup) |
+| Reset scores                          | `/scores/reset` in server + reset control in [Room.jsx](src/components/Room.jsx) board panel |
 | Teams behavior                        | `/teams/*` in server + [TeamsPanel.jsx](src/components/TeamsPanel.jsx) |
 | Poll cadence / reconnect              | constants at top of [Room.jsx](src/components/Room.jsx) |
 | Layout / responsive breakpoint        | [Room.jsx](src/components/Room.jsx) `useIsMobile` + component CSS |
